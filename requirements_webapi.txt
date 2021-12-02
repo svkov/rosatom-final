@@ -1,0 +1,4 @@
+aiofiles
+fastapi
+celery
+redis
