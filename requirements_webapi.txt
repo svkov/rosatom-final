@@ -5,3 +5,5 @@ redis
 pillow==8.4.0
 overpy
 pandas
+SQLAlchemy
+psycopg2

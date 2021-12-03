@@ -46,6 +46,7 @@ def find_nearest_objects_df(lat, lon):
     for way in result.ways:
         distance = haversine(lon, lat, way.center_lon, way.center_lat)
         distances.append(distance)
+        # Тут можно достать что это за объект
         names.append(way.tags.get('name'))
     df = pd.DataFrame({'dist': distances, 'name': names})
     return df.sort_values('dist')
