@@ -1,0 +1,11 @@
+FROM node:12.20.1
+
+COPY front/package.json .
+COPY front/yarn.lock .
+RUN yarn install
+
+COPY front/public/ ./public/
+COPY front/src/ ./src/
+
+EXPOSE 3000
+CMD yarn run start
