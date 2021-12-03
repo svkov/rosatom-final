@@ -13,6 +13,7 @@ from predict import predict_pic
 from sqlalchemy.orm.session import Session
 from dotenv import load_dotenv, find_dotenv
 from db_models import Accident, Company, ImportantObject, OilPipe, Image
+import pandas as pd
 
 load_dotenv(find_dotenv())
 
@@ -239,3 +240,14 @@ def get_all(session: Session = Depends(get_db)):
     Возвращает список всех инцидентов для отрисовки на фронте
     """
     return Accident.get_all(session)
+
+
+@app.get("/report/excel/")
+def get_report(session: Session = Depends(get_db)):
+    df = pd.read_sql(session.query(Accident).join(
+        Image, Image.id == Accident.image_id).all().statement, session.bind)
+    path = 'report.xlsx'
+    df.to_excel(path)
+    return FileResponse(path,
+                        media_type='application/octet-stream',
+                        filename='image.jpg')

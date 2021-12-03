@@ -7,6 +7,9 @@ RUN pip install --no-cache-dir -r /requirements.txt
 COPY ./app/predict.py /app/predict.py
 COPY ./app/models/best_loss_rn18.st /app/models/best_loss_rn18.st
 RUN python predict.py
+
+COPY ./app/segmentation_predict.py /app/segmentation_predict.py
+COPY ./app/models/best.pth /app/models/best.pth
 RUN python segmentation_predict.py
 
 COPY ./app /app
