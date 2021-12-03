@@ -2,6 +2,4 @@ aiofiles
 fastapi
 celery
 redis
-torch==1.10.0
-torchvision==0.11.1
 pillow==8.4.0
