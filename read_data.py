@@ -20,6 +20,14 @@ def read_image(path_to_dir):
     return load_numpy_gz(path)
 
 
+def read_mask_scl(path_to_dir):
+    path = os.path.join(path_to_dir, 'mask', 'SCL.npy.gz')
+    img = load_numpy_gz(path)
+    img[img != 6] = 0
+    img[img == 6] = 1
+    return img
+
+
 def read_timestamp(path_to_dir):
     path = os.path.join(path_to_dir, 'timestamp.pkl.gz')
     return load_pickle_gz(path)
