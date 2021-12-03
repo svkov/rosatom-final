@@ -1,3 +1,4 @@
+import base64
 import json
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
@@ -127,3 +128,35 @@ def predict_coord(coord: Coords):
 def get_nearest_objects(coord: Coords):
     df = find_nearest_objects_df(coord.lat, coord.lon)
     return df.to_dict('records')
+
+
+@app.get("/all/")
+def get_all():
+    from datetime import datetime
+    with open("satellite_data/58.0-61.0.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    example = {
+        'id': '45-88',
+        'date': datetime.now(),
+        'lat': 50.56789,
+        'lon': 60.87654,
+        'region': 'ХМАО',
+        'area': 800,  # Площадь в кв м
+        'company': 'ООО "Лукойл"',
+        'factory_address': 'ул. Пушкина, д.128',
+        'oil_pipe': {
+            'name': 'Трубопровод 54 -77',
+            'lat': 50.5678,
+            'lon': 60.876
+        },
+        'nature': {
+            'Зверобойник брасчатый': 'Редкий',
+            'Подкобыльник рябристый': 'Условно редкий'
+        },
+        'closest_obj': {
+            'р. Ивдель': 17.635551,  # расстояние в км
+            'оз. Мундыр': 22.294480
+        },
+        'photo': [encoded_string, encoded_string]
+    }
+    return [example]
