@@ -3,4 +3,7 @@ FROM tiangolo/uvicorn-gunicorn:python3.8
 COPY requirements_webapi.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
+# На машине на проде 2 Гб, этого мало для обычной установки
+CMD ["pip", "--no-cache-dir", "install", "torch==1.10.0" "torchvision==0.11.1"]
+
 COPY ./app /app
