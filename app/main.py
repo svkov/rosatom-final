@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 import json
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
@@ -34,6 +35,87 @@ async def generate_incident(session: Session = Depends(get_db)):
     session.add(coord)
     session.commit()
     return session.query(Coords).filter_by(id=coord.id).first()
+
+
+class CompanyItem(BaseModel):
+    name: str
+    address: str
+
+
+class OilPipeItem(BaseModel):
+    name: str
+    lat: float
+    lon: float
+
+
+class AccidentItem(BaseModel):
+    date: datetime
+    area: float
+    image_id: int
+    oil_pipe_id: int
+    company_id: int
+    lat: float
+    lon: float
+
+
+@app.post("/create/company")
+async def create_company(company: CompanyItem, session: Session = Depends(get_db)):
+    comp = Company(name=company.name, address=company.address)
+    session.add(comp)
+    session.commit()
+    return {'id': comp.id}
+
+
+@app.post("/create/oil_pipe")
+async def create_oil_pipe(oil_pipe_item: OilPipeItem, session: Session = Depends(get_db)):
+    oil_pipe = OilPipe(name=oil_pipe_item.name,
+                       lat=oil_pipe_item.lat, lon=oil_pipe_item.lon)
+    session.add(oil_pipe)
+    session.commit()
+    return {'id': oil_pipe.id}
+
+
+@app.post('/upload/image')
+def clf_image(file: bytes = File(...), session: Session = Depends(get_db)):
+    if 'data' not in os.listdir('./'):
+        os.mkdir('data')
+    path = 'data/image.jpg'
+    with open(path, 'wb') as out_file:
+        out_file.write(file)
+    clf_tag = round(predict_pic(path))  # >=0.5 - нефтеразлив
+
+    with open(path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    img_db = Image(base64_img=encoded_string, clf_tag=clf_tag)
+    session.add(img_db)
+    session.commit()
+    return {'id': img_db.id, 'predict': clf_tag}
+
+
+@app.post('/create/accident/')
+def create_accident(accident_item: AccidentItem, session: Session = Depends(get_db)):
+    accident = Accident(date=accident_item.date,
+                        area=accident_item.area,
+                        image_id=accident_item.image_id,
+                        oil_pipe_id=accident_item.oil_pipe_id,
+                        company_id=accident_item.oil_pipe_id,
+                        lat=accident_item.lat,
+                        lon=accident_item.lon
+                        )
+    session.add(accident)
+    session.commit()
+    df = find_nearest_objects_df(accident_item.lat, accident_item.lon)
+    for row in df.to_dict('records'):
+        obj = ImportantObject(name=row['name'], distance=row['dist'], accident_id=accident.id)
+        session.add(obj)
+    session.commit()
+    return {'id': accident.id, 'len_of_df': len(df), 'obj': obj.id}
+
+
+@app.get('/get/accident/{id}')
+def get_accident(id: int, session: Session = Depends(get_db)):
+    acc = session.query(Accident).filter_by(id=id).first()
+    return acc.to_dict()
 
 
 class Item(BaseModel):
@@ -141,59 +223,8 @@ def get_nearest_objects(coord: Coords):
 
 
 @app.get("/all/")
-def get_all():
+def get_all(session: Session = Depends(get_db)):
     """
     Возвращает список всех инцидентов для отрисовки на фронте
     """
-    from datetime import datetime
-    with open("satellite_data/58.0-61.0.jpg", "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    example_1 = {
-        'id': '45-88',
-        'date': datetime.now(),
-        'lat': 50.56789,
-        'lon': 60.87654,
-        'region': 'ХМАО',
-        'area': 800,  # Площадь в кв м
-        'company': 'ООО "Лукойл"',
-        'factory_address': 'ул. Пушкина, д.128',
-        'oil_pipe': {
-            'name': 'Трубопровод 54 -77',
-            'lat': 50.5678,
-            'lon': 60.876
-        },
-        'nature': {
-            'Зверобойник брасчатый': 'Редкий',
-            'Подкобыльник рябристый': 'Условно редкий'
-        },
-        'closest_obj': {
-            'р. Ивдель': 17.635551,  # расстояние в км
-            'оз. Мундыр': 22.294480
-        },
-        'photo': [encoded_string, encoded_string]
-    }
-    example_2 = {
-        'id': '45-88',
-        'date': datetime(2021, 5, 18),
-        'lat': 55.98764,
-        'lon': 62.24567,
-        'region': 'ХМАО',
-        'area': 900,  # Площадь в кв м
-        'company': 'ПАО "Газпром нефть"',
-        'factory_address': 'ул. Ленина, д.324',
-        'oil_pipe': {
-            'name': 'Трубопровод 28-99',
-            'lat': 50.5678,
-            'lon': 60.876
-        },
-        'nature': {
-            'Зверобойник брасчатый': 'Редкий',
-            'Подкобыльник рябристый': 'Условно редкий'
-        },
-        'closest_obj': {
-            'р. Ивдель': 17.635551,  # расстояние в км
-            'оз. Мундыр': 22.294480
-        },
-        'photo': [encoded_string, encoded_string]
-    }
-    return [example_1, example_2]
+    return Accident.get_all(session)
