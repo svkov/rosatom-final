@@ -40,3 +40,10 @@ http://37.46.128.70:5000/docs - Swagger
 
 - data/images - данные со спутников
 - data/reestr - данные в экселях
+
+РАЗРАБОТЧИКИ
+
+<h4>Ковалев Святослав fullstack https://t.me/Svkov42 </h4>
+<h4>Суржиков Александр data scientist https://t.me/mansasha </h4>
+<h4>Савельева Олеся product manager https://t.me/OlesyaIT</h4>
+<h4>Зыков Михаил дизайнер https://t.me/MikelPlus </h4>
