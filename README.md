@@ -1,6 +1,32 @@
+# Реализованная функциональность
+
+- Модель бинарной классификации (есть нефтеразлив на снимке или нет)
+- Интеграция с NASA API для выгрузки данных со спутников в реальном времени (реализовано при помощи Celery + Redis)
+- Интеграция с Open Street Map для поиска ближайших рек, озер и поселений
+
+# Особенность проекта в следующем
+
+- Прогнозирование общей площади нефтеразлива на несколько лет вперед
+- 
+
+# Стек
+
+- Docker, Docker compose
+- Python, FastApi, Overpy
+- Celery, Redis
+- HTML, CSS, TypeScript, JavaScript, React
+- Mobx
+- PostgreSQL
+- Git, Github
+
+# Демо
+
+Демо доступно по адресу
+
+http://37.46.128.70:5000/docs - Swagger
+
+
 # Структура
 
 - data/images - данные со спутников
 - data/reestr - данные в экселях
-
-curl -X POST http://localhost:5000/task_hello_world/ -H 'content-type: application/json' -d '{"name":"world"}'
