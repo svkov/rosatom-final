@@ -36,8 +36,8 @@ def download_satellite(self, lat, lon):
     dim = 0.5
     url = f'https://api.nasa.gov/planetary/earth/imagery?api_key={api_key}'
     url += f'&lat={lat}&lon={lon}&date={date}&dim={dim}'
-    response = requests.get(url, stream=True)
     self.update_state(state='PROGRESS', meta={'done': 0, 'total': 100})
+    response = requests.get(url, stream=True)
     cwd = os.getcwd()
     dir_name = 'satellite_data'
     if dir_name not in os.listdir(cwd):
@@ -58,3 +58,10 @@ def download_satellite(self, lat, lon):
                 'exc_type': 'Not found',
                 'exc_message': 'Data not found'
             })
+    self.update_state(
+        state=states.FAILURE,
+        meta={
+            'exc_type': f'Unknown {response.status_code}',
+            'exc_message': response.content
+        }
+    )

@@ -105,9 +105,18 @@ def download_coord(coord: Coords):
                         filename='image.jpg')
 
 
-@app.get("/predict/")
-def predict():
-    path_to_model = 'models/best_loss_rn18.st'
-    path_to_image = 'satellite_data/58.0-61.0.jpg'
-    res = predict_pic(path_to_model, path_to_image)
+@app.get("/predict/{id}")
+def predict(id: str):
+    task = celery.AsyncResult(id)
+    filename = task.result
+    path = os.path.join('satellite_data', filename)
+    res = predict_pic(path)
+    return {'predict': res}
+
+
+@app.post("/predict/")
+def predict_coord(coord: Coords):
+    filename = f'{coord.lat}-{coord.lon}.jpg'
+    path = os.path.join('satellite_data', filename)
+    res = predict_pic(path)
     return {'predict': res}
