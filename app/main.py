@@ -97,7 +97,7 @@ def clf_image(file: bytes = File(...),
     img_db = Image(base64_img=encoded_string, clf_tag=clf_tag, area=area)
     session.add(img_db)
     session.commit()
-    return {'id': img_db.id, 'predict': clf_tag, 'area': area}
+    return {'id': img_db.id, 'predict': img_db.clf_tag, 'area': img_db.area}
 
 
 @app.post('/create/accident/')
@@ -244,10 +244,32 @@ def get_all(session: Session = Depends(get_db)):
 
 @app.get("/report/excel/")
 def get_report(session: Session = Depends(get_db)):
-    df = pd.read_sql(session.query(Accident).join(
-        Image, Image.id == Accident.image_id).all().statement, session.bind)
+    df = pd.read_sql(session.query(Accident.date,
+                                   Accident.lat,
+                                   Accident.lon,
+                                   Image.area).join(
+        Image, Image.id == Accident.image_id).statement, session.bind)
     path = 'report.xlsx'
+    df.columns = ['Дата', "Широта", "Долгота", "Площадь загрязнения м2"]
     df.to_excel(path)
     return FileResponse(path,
-                        media_type='application/octet-stream',
-                        filename='image.jpg')
+                        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
+                        filename='report.xlsx')
+
+
+@app.get("/registry/history")
+def get_registry_history():
+    return pd.read_csv('models/area_per_year.csv').to_dict('records')
+
+
+@app.get("/registry/predict/{years}")
+def predict_registry(years: int):
+    import pmdarima as pmd
+    df = pd.read_csv('models/area_per_year.csv', index_col=0)
+    model = pmd.auto_arima(df)
+    years_range = range(int(df.index[-1]) + 1, int(df.index[-1]) + years + 1)
+    response = {}
+    pred = model.predict(years)
+    for i, year in enumerate(years_range):
+        response[year] = pred[i]
+    return response

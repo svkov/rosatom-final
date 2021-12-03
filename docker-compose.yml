@@ -10,16 +10,15 @@ services:
     build:
       context: .
       dockerfile: DockerfileWebApi
-    environment:
-      REDISSERVER: redis://redis_server:6379
-      C_FORCE_ROOT: "true"
-      MAX_WORKERS: 1
+    env_file:
+      - .env.example
     ports:
       - "5000:80"
     volumes:
       - ./satellite_data/:/app/satellite_data/
     depends_on:
       - redis_server
+      - db
   worker:
     build:
       dockerfile: DockerfileCelery

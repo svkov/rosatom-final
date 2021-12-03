@@ -27,4 +27,4 @@ def get_area_of_oil_spill(path):
 
     with torch.no_grad():
         oil_square = model(x)[0].softmax(axis=0).argmax(axis=0).sum()
-    return oil_square * 10 * 10
+    return oil_square.item() * 10 * 10

@@ -23,7 +23,7 @@
 - Mobx
 - PostgreSQL
 - Git, Github
-- Pytorch, Catalyst
+- Pytorch, Catalyst, EOLearn
 
 # Нейросетевые модели
 
