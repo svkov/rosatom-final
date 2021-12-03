@@ -1,9 +1,12 @@
 FROM tiangolo/uvicorn-gunicorn:python3.8
 
 COPY requirements_webapi.txt /requirements.txt
-RUN pip install -r /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
 
-# На машине на проде 2 Гб, этого мало для обычной установки
-RUN pip --no-cache-dir install torch==1.10.0 torchvision==0.11.1
+# Инициализируем модели, занимает какое-то время
+COPY ./app/predict.py /app/predict.py
+COPY ./app/models/best_loss_rn18.st /app/models/best_loss_rn18.st
+RUN python predict.py
+RUN python segmentation_predict.py
 
 COPY ./app /app

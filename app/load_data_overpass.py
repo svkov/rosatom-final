@@ -28,7 +28,7 @@ def find_nearest_objects_df(lat, lon):
     bbox2_lat = lat - 1
     bbox2_lon = lon - 1
     radius = 200
-    filter_around = f'(around:{radius}, {bbox1_lat}, {bbox1_lon}, {bbox2_lat}, {bbox2_lon})'
+    filter_around = f'(around:{radius}, {bbox1_lat}, {bbox1_lon}, {bbox2_lat}, {bbox2_lon})' # noqa
     # fetch all ways and nodes
     result = api.query(f"""
     [out:json][timeout:25];
@@ -46,6 +46,7 @@ def find_nearest_objects_df(lat, lon):
     for way in result.ways:
         distance = haversine(lon, lat, way.center_lon, way.center_lat)
         distances.append(distance)
+        # Тут можно достать что это за объект
         names.append(way.tags.get('name'))
     df = pd.DataFrame({'dist': distances, 'name': names})
     return df.sort_values('dist')
