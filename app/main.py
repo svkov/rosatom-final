@@ -1,6 +1,7 @@
 import json
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException
+from load_data_overpass import find_nearest_objects_df
 from worker import celery
 from starlette.responses import FileResponse
 import os
@@ -120,3 +121,9 @@ def predict_coord(coord: Coords):
     path = os.path.join('satellite_data', filename)
     res = predict_pic(path)
     return {'predict': res}
+
+
+@app.post("/nearest_objects/")
+def get_nearest_objects(coord: Coords):
+    df = find_nearest_objects_df(coord.lat, coord.lon)
+    return df.to_dict('records')

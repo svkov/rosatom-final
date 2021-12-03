@@ -3,3 +3,5 @@ fastapi
 celery
 redis
 pillow==8.4.0
+overpy
+pandas
