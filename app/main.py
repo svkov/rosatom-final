@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from worker import celery
 from starlette.responses import FileResponse
 import os
+from predict import predict_pic
 
 
 app = FastAPI()
@@ -102,3 +103,11 @@ def download_coord(coord: Coords):
     return FileResponse(path,
                         media_type='application/octet-stream',
                         filename='image.jpg')
+
+
+@app.get("/predict/")
+def predict():
+    path_to_model = 'models/best_loss_rn18.st'
+    path_to_image = 'satellite_data/58.0-61.0.jpg'
+    res = predict_pic(path_to_model, path_to_image)
+    return {'predict': res}

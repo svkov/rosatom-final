@@ -33,7 +33,7 @@ def hello_world(self, name):
 def download_satellite(self, lat, lon):
     api_key = 'shxWJfVbBrWHcz7nLYA2FqLtn3dk8qiaTgOzb377'
     date = '2021-09-01'
-    dim = 0.05
+    dim = 0.5
     url = f'https://api.nasa.gov/planetary/earth/imagery?api_key={api_key}'
     url += f'&lat={lat}&lon={lon}&date={date}&dim={dim}'
     response = requests.get(url, stream=True)
