@@ -2,7 +2,8 @@ import base64
 from datetime import datetime
 import json
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
+from fastapi import FastAPI, HTTPException, File, Depends
+from segmentation_predict import get_area_of_oil_spill
 from db import SessionLocal, engine, Base
 from load_data_overpass import find_nearest_objects_df
 from worker import celery
@@ -11,7 +12,7 @@ import os
 from predict import predict_pic
 from sqlalchemy.orm.session import Session
 from dotenv import load_dotenv, find_dotenv
-from db_models import *
+from db_models import Accident, Company, ImportantObject, OilPipe, Image
 
 load_dotenv(find_dotenv())
 
@@ -50,7 +51,6 @@ class OilPipeItem(BaseModel):
 
 class AccidentItem(BaseModel):
     date: datetime
-    area: float
     image_id: int
     oil_pipe_id: int
     company_id: int
@@ -59,7 +59,8 @@ class AccidentItem(BaseModel):
 
 
 @app.post("/create/company")
-async def create_company(company: CompanyItem, session: Session = Depends(get_db)):
+async def create_company(company: CompanyItem,
+                         session: Session = Depends(get_db)):
     comp = Company(name=company.name, address=company.address)
     session.add(comp)
     session.commit()
@@ -67,7 +68,8 @@ async def create_company(company: CompanyItem, session: Session = Depends(get_db
 
 
 @app.post("/create/oil_pipe")
-async def create_oil_pipe(oil_pipe_item: OilPipeItem, session: Session = Depends(get_db)):
+async def create_oil_pipe(oil_pipe_item: OilPipeItem,
+                          session: Session = Depends(get_db)):
     oil_pipe = OilPipe(name=oil_pipe_item.name,
                        lat=oil_pipe_item.lat, lon=oil_pipe_item.lon)
     session.add(oil_pipe)
@@ -76,7 +78,8 @@ async def create_oil_pipe(oil_pipe_item: OilPipeItem, session: Session = Depends
 
 
 @app.post('/upload/image')
-def clf_image(file: bytes = File(...), session: Session = Depends(get_db)):
+def clf_image(file: bytes = File(...),
+              session: Session = Depends(get_db)):
     if 'data' not in os.listdir('./'):
         os.mkdir('data')
     path = 'data/image.jpg'
@@ -84,18 +87,22 @@ def clf_image(file: bytes = File(...), session: Session = Depends(get_db)):
         out_file.write(file)
     clf_tag = round(predict_pic(path))  # >=0.5 - нефтеразлив
 
+    if clf_tag == 1:
+        area = get_area_of_oil_spill(path)
+    else:
+        area = None
     with open(path, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
-    img_db = Image(base64_img=encoded_string, clf_tag=clf_tag)
+    img_db = Image(base64_img=encoded_string, clf_tag=clf_tag, area=area)
     session.add(img_db)
     session.commit()
-    return {'id': img_db.id, 'predict': clf_tag}
+    return {'id': img_db.id, 'predict': clf_tag, 'area': area}
 
 
 @app.post('/create/accident/')
-def create_accident(accident_item: AccidentItem, session: Session = Depends(get_db)):
+def create_accident(accident_item: AccidentItem,
+                    session: Session = Depends(get_db)):
     accident = Accident(date=accident_item.date,
-                        area=accident_item.area,
                         image_id=accident_item.image_id,
                         oil_pipe_id=accident_item.oil_pipe_id,
                         company_id=accident_item.oil_pipe_id,
@@ -106,7 +113,8 @@ def create_accident(accident_item: AccidentItem, session: Session = Depends(get_
     session.commit()
     df = find_nearest_objects_df(accident_item.lat, accident_item.lon)
     for row in df.to_dict('records'):
-        obj = ImportantObject(name=row['name'], distance=row['dist'], accident_id=accident.id)
+        obj = ImportantObject(
+            name=row['name'], distance=row['dist'], accident_id=accident.id)
         session.add(obj)
     session.commit()
     return {'id': accident.id, 'len_of_df': len(df), 'obj': obj.id}
@@ -166,7 +174,8 @@ def check_download(id: str):
 @app.get("/download_picture/{id}")
 def download_picture(id: str):
     """
-    Отдает снимок со спутника, который уже скачался. Если не скачался - кинет 500.
+    Отдает снимок со спутника, который уже скачался.
+    Если не скачался - кинет 500.
     """
     task = celery.AsyncResult(id)
     filename = task.result
@@ -193,7 +202,8 @@ def download_coord(coord: Coords):
 @app.get("/predict/{id}")
 def predict(id: str):
     """
-    Предсказывает моделью классификации есть ли разлив на снимке со спутника NASA
+    Предсказывает моделью классификации
+    есть ли разлив на снимке со спутника NASA
     """
     task = celery.AsyncResult(id)
     filename = task.result
@@ -216,7 +226,8 @@ def predict_coord(coord: Coords):
 @app.post("/nearest_objects/")
 def get_nearest_objects(coord: Coords):
     """
-    Отдает список ближайших важных объектов к заданным координатам и расстояние в км до них
+    Отдает список ближайших важных объектов
+    к заданным координатам и расстояние в км до них
     """
     df = find_nearest_objects_df(coord.lat, coord.lon)
     return df.to_dict('records')

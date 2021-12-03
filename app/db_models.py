@@ -27,6 +27,7 @@ class Image(Base):
     id = Column(Integer, primary_key=True)
     base64_img = Column(String)
     clf_tag = Column(Integer)  # 1 if oil spill, 0 if no
+    area = Column(Float)  # in square meters
 
 
 class Company(Base):
@@ -42,7 +43,6 @@ class Accident(Base):
 
     id = Column(Integer, primary_key=True)
     date = Column(Date)
-    area = Column(Float)
     lat = Column(Float)
     lon = Column(Float)
     image_id = Column(Integer, ForeignKey('image.id'))
@@ -62,7 +62,7 @@ class Accident(Base):
             'lat': self.lat,
             'lon': self.lon,
             'region': 'ХМАО',
-            'area': self.area,  # Площадь в кв м
+            'area': self.image.area,  # Площадь в кв м
             'company': self.company.name,
             'factory_address': self.company.address,
             'oil_pipe': {

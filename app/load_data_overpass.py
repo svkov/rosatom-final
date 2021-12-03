@@ -28,7 +28,7 @@ def find_nearest_objects_df(lat, lon):
     bbox2_lat = lat - 1
     bbox2_lon = lon - 1
     radius = 200
-    filter_around = f'(around:{radius}, {bbox1_lat}, {bbox1_lon}, {bbox2_lat}, {bbox2_lon})'
+    filter_around = f'(around:{radius}, {bbox1_lat}, {bbox1_lon}, {bbox2_lat}, {bbox2_lon})' # noqa
     # fetch all ways and nodes
     result = api.query(f"""
     [out:json][timeout:25];
