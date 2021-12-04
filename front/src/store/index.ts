@@ -38,11 +38,11 @@ export default class Store {
   }
 
   *getData(): Generator<AxiosPromise<{ data: Data[] }>> {
-    const data: any = yield axios('http://37.46.128.70:5000/all')
-
-    // console.log('--- data.data', data.data)
-
-    this.data = data.data
+    try {
+      const data: any = yield axios('http://37.46.128.70:5000/all')
+      console.log('--- data.data', data.data)
+      if (!data?.data?.length) throw new Error()
+      this.data = data.data
     } catch (_) {
       this.data = [
         {
