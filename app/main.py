@@ -14,11 +14,20 @@ from sqlalchemy.orm.session import Session
 from dotenv import load_dotenv, find_dotenv
 from db_models import Accident, Company, ImportantObject, OilPipe, Image
 import pandas as pd
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(find_dotenv())
 
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 Base.metadata.create_all(bind=engine)
 
 
