@@ -102,7 +102,7 @@ def clf_image(file: bytes = File(...),
     else:
         area = None
     with open(path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
+        encoded_string = base64.b64encode(image_file.read()).decode('ascii')
     img_db = Image(base64_img=encoded_string, clf_tag=clf_tag, area=area)
     session.add(img_db)
     session.commit()
