@@ -1,47 +1,27 @@
 export const photos = [
   {
-    src: 'https://source.unsplash.com/2ShvY8Lf6l0/800x599',
+    src: 'https://cdn-zttim.storage.yandexcloud.net/uploads/2021/09/e1lwrbvx0aevgkv-1024x576.jpg',
     width: 4,
     height: 3,
   },
   {
-    src: 'https://source.unsplash.com/Dm-qxdynoEc/800x799',
+    src: 'https://cdn.iz.ru/sites/default/files/styles/900x506/public/news-2020-06/RIAN_1486281.HR_.ru__0.jpg?itok=tBnQP17W',
     width: 1,
     height: 1,
   },
   {
-    src: 'https://source.unsplash.com/qDkso9nvCg0/600x799',
+    src: 'https://takiedela.ru/wp-content/uploads/2021/05/1-1.jpeg',
     width: 3,
     height: 4,
   },
   {
-    src: 'https://source.unsplash.com/iecJiKe_RNg/600x799',
+    src: 'https://komionline.ru/uploads/2014/08/news_47246_1.jpg',
     width: 3,
     height: 4,
   },
   {
-    src: 'https://source.unsplash.com/epcsn8Ed8kY/600x799',
+    src: 'https://www.ogneboretz.ru/wp-content/uploads/2020/07/razliv_nefti.jpg',
     width: 3,
     height: 4,
-  },
-  {
-    src: 'https://source.unsplash.com/NQSWvyVRIJk/800x599',
-    width: 4,
-    height: 3,
-  },
-  {
-    src: 'https://source.unsplash.com/zh7GEuORbUw/600x799',
-    width: 3,
-    height: 4,
-  },
-  {
-    src: 'https://source.unsplash.com/PpOHJezOalU/800x599',
-    width: 4,
-    height: 3,
-  },
-  {
-    src: 'https://source.unsplash.com/I1ASdgphUH4/800x599',
-    width: 4,
-    height: 3,
   },
 ]

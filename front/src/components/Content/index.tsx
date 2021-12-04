@@ -62,7 +62,7 @@ const Content: React.FC<ContentProps> = ({ data }: ContentProps) => {
                     <h2 className="title">Место разлива</h2>
                   </div>
                 </div>
-                <Appeal data={data} />
+                <Appeal key={data.id} data={data} />
               </div>
               <div className="col-lg-6 mb-30">
                 <div className="section-header">
@@ -70,7 +70,7 @@ const Content: React.FC<ContentProps> = ({ data }: ContentProps) => {
                     <h2 className="title">Локация</h2>
                   </div>
                 </div>
-                <Map data={data} />
+                <Map key={data.id} data={data} />
               </div>
             </div>
           </div>

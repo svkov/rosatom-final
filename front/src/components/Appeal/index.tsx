@@ -1,12 +1,51 @@
 import React, { useState, useCallback } from 'react'
 import Gallery from 'react-photo-gallery'
-import Carousel, { Modal, ModalGateway } from 'react-images'
+import 'react-responsive-carousel/lib/styles/carousel.min.css' // requires a loader
+import { Carousel } from 'react-responsive-carousel'
 import { photos } from './photos'
 import { Data } from '../../store'
 import './index.css'
 
 type Props = {
   data: Data
+}
+
+function Base64Decode(str: string) {
+  if (!/^[a-z0-9+/]+={0,2}$/i.test(str) || str.length % 4 != 0)
+    throw Error('Not base64 string')
+
+  var b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+  var o1,
+    o2,
+    o3,
+    h1,
+    h2,
+    h3,
+    h4,
+    bits,
+    d = []
+
+  for (var c = 0; c < str.length; c += 4) {
+    // unpack four hexets into three octets
+    h1 = b64.indexOf(str.charAt(c))
+    h2 = b64.indexOf(str.charAt(c + 1))
+    h3 = b64.indexOf(str.charAt(c + 2))
+    h4 = b64.indexOf(str.charAt(c + 3))
+
+    bits = (h1 << 18) | (h2 << 12) | (h3 << 6) | h4
+
+    o1 = (bits >>> 16) & 0xff
+    o2 = (bits >>> 8) & 0xff
+    o3 = bits & 0xff
+
+    d[c / 4] = String.fromCharCode(o1, o2, o3)
+    // check for padding
+    if (h4 == 0x40) d[c / 4] = String.fromCharCode(o1, o2)
+    if (h3 == 0x40) d[c / 4] = String.fromCharCode(o1)
+  }
+  str = d.join('') // use Array.join() for better performance than repeated string appends
+
+  return str
 }
 
 const Appeal: React.FC<Props> = ({ data }: Props) => {
@@ -52,7 +91,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
           <ul className="nav nav-tabs" role="tablist">
             <li role="presentation" className="active">
               <a
-                href="#Section1"
+                href={`#Section1${data.id}`}
                 aria-controls="home"
                 role="tab"
                 data-toggle="tab"
@@ -62,7 +101,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
             </li>
             <li role="presentation">
               <a
-                href="#Section2"
+                href={`#Section2${data.id}`}
                 aria-controls="profile"
                 role="tab"
                 data-toggle="tab"
@@ -72,7 +111,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
             </li>
             <li role="presentation">
               <a
-                href="#Section3"
+                href={`#Section3${data.id}`}
                 aria-controls="messages"
                 role="tab"
                 data-toggle="tab"
@@ -82,7 +121,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
             </li>
             <li role="presentation">
               <a
-                href="#Section4"
+                href={`#Section4${data.id}`}
                 aria-controls="messages"
                 role="tab"
                 data-toggle="tab"
@@ -92,7 +131,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
             </li>
             <li role="presentation">
               <a
-                href="#Section5"
+                href={`#Section5${data.id}`}
                 aria-controls="messages"
                 role="tab"
                 data-toggle="tab"
@@ -105,7 +144,7 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
             <div
               role="tabpanel"
               className="tab-pane fade in active show"
-              id="Section1"
+              id={`Section1${data.id}`}
             >
               <table className="table table-borderless">
                 <tbody>
@@ -138,7 +177,11 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
                 </tbody>
               </table>
             </div>
-            <div role="tabpanel" className="tab-pane fade" id="Section2">
+            <div
+              role="tabpanel"
+              className="tab-pane fade"
+              id={`Section2${data.id}`}
+            >
               <table className="table table-borderless">
                 <tbody>
                   <tr>
@@ -150,33 +193,40 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
                 </tbody>
               </table>
             </div>
-            <div role="tabpanel" className="tab-pane fade" id="Section3">
+            <div
+              role="tabpanel"
+              className="tab-pane fade"
+              id={`Section3${data.id}`}
+            >
               <div>
-                <Gallery photos={photos} onClick={openLightbox} />
-                <ModalGateway>
-                  {viewerIsOpen ? (
-                    <Modal onClose={closeLightbox}>
-                      <Carousel
-                        currentIndex={currentImage}
-                        // @ts-ignore
-                        views={photos.map((x) => ({
-                          ...x,
-                          // @ts-ignore
-                          srcset: x.srcSet,
-                          // @ts-ignore
-                          caption: x.title,
-                        }))}
-                      />
-                    </Modal>
-                  ) : null}
-                </ModalGateway>
+                <Carousel>
+                  <div>
+                    <div>
+                      <img src="https://cdn-zttim.storage.yandexcloud.net/uploads/2021/09/e1lwrbvx0aevgkv-1024x576.jpg" />
+                    </div>
+                    <img
+                      // src={`data:image/jpg;base64,${Base64Decode(data.photo)}`}
+                      src={`data:image/jpeg;base64,${data.photo}`}
+                    />
+                  </div>
+                  <div>
+                    <img
+                      // src={`data:image/jpg;base64,${Base64Decode(data.photo)}`}
+                      src={`data:image/jpg;base64,${data.photo}`}
+                    />
+                  </div>
+                </Carousel>
               </div>
             </div>
-            <div role="tabpanel" className="tab-pane fade" id="Section4">
+            <div
+              role="tabpanel"
+              className="tab-pane fade"
+              id={`Section4${data.id}`}
+            >
               <table className="table table-borderless">
                 <tbody>
-                  {Object.entries(data.nature).map((item) => (
-                    <tr>
+                  {Object.entries(data.nature).map((item, i) => (
+                    <tr key={item[0] + i}>
                       <td>{item[0]}</td>
                       <td className={getColorClassName(item[1])}>{item[1]}</td>
                     </tr>
@@ -184,7 +234,11 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
                 </tbody>
               </table>
             </div>
-            <div role="tabpanel" className="tab-pane fade" id="Section5">
+            <div
+              role="tabpanel"
+              className="tab-pane fade"
+              id={`Section5${data.id}`}
+            >
               <table className="table table-borderless">
                 <thead>
                   <tr>
@@ -193,8 +247,8 @@ const Appeal: React.FC<Props> = ({ data }: Props) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {data.closest_obj.map(({ name, tag, distance }) => (
-                    <tr>
+                  {data.closest_obj.map(({ name, tag, distance }, i) => (
+                    <tr key={name || '' + distance + 1}>
                       <td>{name}</td>
                       <td>{Math.ceil(distance * 100) / 100} км</td>
                     </tr>

@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from 'react'
 // @ts-ignore
 import mapboxgl from '!mapbox-gl' // eslint-disable-line import/no-webpack-loader-syntax
 import { Data } from '../../store'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 import './index.css'
 
@@ -16,8 +17,8 @@ type Props = {
 const Map: React.FC<Props> = ({ data }: Props) => {
   const mapContainer = useRef(null)
   const map = useRef<any>(null)
-  const [lng, setLng] = useState(69.02)
-  const [lat, setLat] = useState(61.06)
+  const [lng, setLng] = useState(data.lon)
+  const [lat, setLat] = useState(data.lat)
   const [zoom, setZoom] = useState(6)
 
   useEffect(() => {
@@ -38,6 +39,19 @@ const Map: React.FC<Props> = ({ data }: Props) => {
       setZoom(map.current.getZoom().toFixed(2))
     })
   })
+
+  useEffect(() => {
+    setLng(data.lon)
+    setLat(data.lat)
+    if (!map.current) return // wait for map to initialize
+
+    const marker = new mapboxgl.Marker({})
+      .setLngLat([data.lon, data.lat])
+      .addTo(map.current)
+    // const marker2 = new mapboxgl.Marker()
+    //   .setLngLat([data.oil_pipe.lon, data.oil_pipe.lat])
+    //   .addTo(map.current)
+  }, [data])
 
   return (
     <div className="section-wrapper">

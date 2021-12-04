@@ -6,7 +6,7 @@ import Content from '../Content'
 const Main: React.FC = observer(() => {
   const store = useStore()
 
-  console.log('--- store?.data?.map', store?.data)
+  console.log('--- store?.data?.map', !!store?.data[0])
 
   return (
     <>
