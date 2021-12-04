@@ -28,7 +28,7 @@ const Header: React.FC = () => {
             <li>
               <a
                 className="Patient-btn"
-                style={{ textTransform: 'none' }}
+                style={{ textTransform: 'none', backgroundColor: '#127DCB' }}
                 href="#"
               >
                 {'+ Добавить инцидент'}

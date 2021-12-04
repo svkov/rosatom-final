@@ -14,18 +14,9 @@ const Sidebar: React.FC = () => {
         <nav className="menu-area ">
           <ul id="metismenu">
             <li className="">
-              <a className="has-arrow" href="#">
-                <i className="flaticon-alarm"></i> Аварии
+              <a href="#">
+                <i className="flaticon-alarm"></i> Архив
               </a>
-              {/* TODO: make generic */}
-              <ul>
-                <li>
-                  <a href="#">Авария 1</a>
-                </li>
-                <li>
-                  <a href="#">Авария 2</a>
-                </li>
-              </ul>
             </li>
             <li>
               <a href="#">

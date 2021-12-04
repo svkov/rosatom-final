@@ -319,7 +319,7 @@ scrollUp
           box-sizing: border-box;
   border-radius: 30px;
   padding: 2.5rem 1.5rem;
-  min-height: 900px;
+  /* min-height: 900px; */
 }
 
 .section-wrapper {

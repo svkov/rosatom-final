@@ -1,13 +1,30 @@
 import React, { useState, useCallback } from 'react'
-import { render } from 'react-dom'
 import Gallery from 'react-photo-gallery'
 import Carousel, { Modal, ModalGateway } from 'react-images'
 import { photos } from './photos'
+import { Data } from '../../store'
 import './index.css'
 
-const Appeal: React.FC = () => {
+type Props = {
+  data: Data
+}
+
+const Appeal: React.FC<Props> = ({ data }: Props) => {
   const [currentImage, setCurrentImage] = useState(0)
   const [viewerIsOpen, setViewerIsOpen] = useState(false)
+
+  const getColorClassName = (type: string) => {
+    switch (type) {
+      case 'Редкий':
+        return 'rare'
+      case 'Очень редкий':
+        return 'rare'
+      case 'Условно редкий':
+        return 'conditional'
+      default:
+        return ''
+    }
+  }
 
   const openLightbox = useCallback((event, { photo, index }) => {
     setCurrentImage(index)
@@ -23,7 +40,7 @@ const Appeal: React.FC = () => {
     <div className="section-wrapper">
       <br />
       <h2 className="title" style={{ color: '#292968', fontSize: 24 }}>
-        Обращение №45-88
+        Обращение {data.id}
       </h2>
       <br />
       Оповещение системы
@@ -73,26 +90,38 @@ const Appeal: React.FC = () => {
                 Флора и фауна
               </a>
             </li>
+            <li role="presentation">
+              <a
+                href="#Section5"
+                aria-controls="messages"
+                role="tab"
+                data-toggle="tab"
+              >
+                Ближайшие объекты
+              </a>
+            </li>
           </ul>
           <div className="tab-content tabs">
             <div
               role="tabpanel"
-              className="tab-pane fade in active"
+              className="tab-pane fade in active show"
               id="Section1"
             >
               <table className="table table-borderless">
                 <tbody>
                   <tr>
                     <td>Дата пришествия</td>
-                    <td>30 Ноября 2021</td>
+                    <td>{data.date}</td>
                   </tr>
                   <tr>
                     <td>Координаты</td>
-                    <td>0000000000000</td>
+                    <td>
+                      Долгота: {data.lon} | Широта: {data.lat}
+                    </td>
                   </tr>
                   <tr>
                     <td>Регион</td>
-                    <td>Московская область</td>
+                    <td>{data.region}</td>
                   </tr>
                   <tr>
                     <td>Локация</td>
@@ -102,6 +131,10 @@ const Appeal: React.FC = () => {
                     <td>Оценка ущерба</td>
                     <td>—</td>
                   </tr>
+                  <tr>
+                    <td>Площадь</td>
+                    <td>{data.area} км²</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -109,24 +142,10 @@ const Appeal: React.FC = () => {
               <table className="table table-borderless">
                 <tbody>
                   <tr>
-                    <td>Завод по переработке</td>
-                    <td>Адрес</td>
-                  </tr>
-                  <tr>
-                    <td>Трубопровод 54 -77</td>
-                    <td>Координаты</td>
-                  </tr>
-                  <tr>
-                    <td>Нефтепровод А 54 -77</td>
-                    <td>Координаты</td>
-                  </tr>
-                  <tr>
-                    <td>АЗС Ромашка 547</td>
-                    <td>Адрес</td>
-                  </tr>
-                  <tr>
-                    <td>АЗС Нефтепродукты</td>
-                    <td>Адрес</td>
+                    <td>{data.oil_pipe.name}</td>
+                    <td>
+                      Долгота: {data.oil_pipe.lon} | Широта: {data.oil_pipe.lat}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -156,26 +175,30 @@ const Appeal: React.FC = () => {
             <div role="tabpanel" className="tab-pane fade" id="Section4">
               <table className="table table-borderless">
                 <tbody>
+                  {Object.entries(data.nature).map((item) => (
+                    <tr>
+                      <td>{item[0]}</td>
+                      <td className={getColorClassName(item[1])}>{item[1]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div role="tabpanel" className="tab-pane fade" id="Section5">
+              <table className="table table-borderless">
+                <thead>
                   <tr>
-                    <td>Зверобойник брасчатый</td>
-                    <td className="rare">Редкий</td>
+                    <th scope="col">Название</th>
+                    <th scope="col">Расстояние</th>
                   </tr>
-                  <tr>
-                    <td>Подкобыльник рябристый </td>
-                    <td className="conditional">Условно редкий</td>
-                  </tr>
-                  <tr>
-                    <td>Приземистая выхухоль</td>
-                    <td className="rare">Очень редкий</td>
-                  </tr>
-                  <tr>
-                    <td>Чернушка великолесистая </td>
-                    <td className="rare">Редкий</td>
-                  </tr>
-                  <tr>
-                    <td>Медовик бурый</td>
-                    <td className="conditional">Условно редкий</td>
-                  </tr>
+                </thead>
+                <tbody>
+                  {data.closest_obj.map(({ name, tag, distance }) => (
+                    <tr>
+                      <td>{name}</td>
+                      <td>{Math.ceil(distance * 100) / 100} км</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
